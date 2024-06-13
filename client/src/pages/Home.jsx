@@ -1,91 +1,108 @@
 import React, { useState, useEffect } from 'react';
+import { Card, FormField, Loader } from '../components';
 import axios from 'axios';
 
-const Home = () => {
-    const [loading, setLoading] = useState(false);
-    const [allPosts, setAllPosts] = useState([]);
-    const [searchText, setSearchText] = useState('');
-    const [searchedResults, setSearchedResults] = useState([]);
+const RenderCards = ({ data, title }) => {
+        if (data && data.length > 0) {
+            return (
+                data.map((post) => < Card key = { post._id } {...post }
+                    />)
+                );
+            }
+            return <h2 > { title } < /h2>;
+        };
 
-    useEffect(() => {
-        fetchPosts();
-    }, []);
+        const Home = () => {
+            const [loading, setLoading] = useState(false);
+            const [allPosts, setAllPosts] = useState([]);
+            const [searchText, setSearchText] = useState('');
+            const [searchedResults, setSearchedResults] = useState([]);
 
-    const fetchPosts = async() => {
-        setLoading(true);
-        try {
-            const response = await axios.get('http://localhost:8080/api/v1/post');
-            setAllPosts(response.data.data.reverse());
-        } catch (error) {
-            console.error('Error fetching posts:', error);
-            alert('Failed to fetch posts.');
-        } finally {
-            setLoading(false);
-        }
-    };
+            useEffect(() => {
+                fetchPosts();
+            }, []);
 
-    const handleSearchChange = (e) => {
-        const searchText = e.target.value.toLowerCase();
-        setSearchText(searchText);
+            const fetchPosts = async() => {
+                setLoading(true);
+                try {
+                    const response = await axios.get('http://localhost:8080/api/v1/post');
+                    setAllPosts(response.data.data.reverse());
+                } catch (error) {
+                    console.error('Error fetching posts:', error);
+                    alert('Failed to fetch posts.');
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        const searchResult = allPosts.filter(
-            (post) =>
-            post.name.toLowerCase().includes(searchText) ||
-            post.prompt.toLowerCase().includes(searchText)
-        );
-        setSearchedResults(searchResult);
-    };
+            const handleSearchChange = (e) => {
+                const searchText = e.target.value.toLowerCase();
+                setSearchText(searchText);
 
-    return ( <
-            div >
-            <
-            h1 > Community Showcase < /h1> <
-            input type = "text"
-            placeholder = "Search posts"
-            value = { searchText }
-            onChange = { handleSearchChange }
-            /> {
-            loading ? ( <
-                p > Loading... < /p>
-            ) : ( <
-                div > {
-                    searchText ? (
-                        searchedResults.length > 0 ? (
-                            searchedResults.map((post) => ( <
-                                div key = { post._id } >
-                                <
-                                h2 > { post.name } < /h2> <
-                                p > { post.prompt } < /p> <
-                                img src = { post.photo }
-                                alt = { post.prompt }
-                                /> < /
-                                div >
-                            ))
-                        ) : ( <
-                            p > No search results found. < /p>
-                        )
-                    ) : (
-                        allPosts.length > 0 ? (
-                            allPosts.map((post) => ( <
-                                div key = { post._id } >
-                                <
-                                h2 > { post.name } < /h2> <
-                                p > { post.prompt } < /p> <
-                                img src = { post.photo }
-                                alt = { post.prompt }
-                                /> < /
-                                div >
-                            ))
-                        ) : ( <
-                            p > No posts yet. < /p>
-                        )
+                const searchResult = allPosts.filter(
+                    (post) =>
+                    post.name.toLowerCase().includes(searchText) ||
+                    post.prompt.toLowerCase().includes(searchText)
+                );
+                setSearchedResults(searchResult);
+            };
+
+            return ( <
+                section className = "max-w-7xl mx-auto" >
+                <
+                div >
+                <
+                h1 className = "font-extrabold text-[#222328] text-[32px]" > The Community Showcase < /h1> <
+                p className = "mt-2 text-[#666e75] text-[14px] max-w-[500px]" >
+                Browse through a collection of imaginative and visually stunning images generated by DALL - E AI <
+                /p> <
+                /div>
+
+                <
+                div className = "mt-16" >
+                <
+                FormField labelName = "Search posts"
+                type = "text"
+                name = "text"
+                placeholder = "Search something..."
+                value = { searchText }
+                handleChange = { handleSearchChange }
+                /> <
+                /div>
+
+                <
+                div className = "mt-10" > {
+                    loading ? ( <
+                        div className = "flex justify-center items-center" >
+                        <
+                        Loader / >
+                        <
+                        /div>
+                    ) : ( <
+                        > {
+                            searchText && ( <
+                                h2 className = "font-medium text-[#666e75] text-xl mb-3" >
+                                Showing Results
+                                for < span className = "text-[#222328]" > { searchText } < /span>: <
+                                /h2>
+                            )
+                        } <
+                        div className = "grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3" > {
+                            searchText ? ( <
+                                RenderCards data = { searchedResults }
+                                title = "No Search Results Found" / >
+                            ) : ( <
+                                RenderCards data = { allPosts }
+                                title = "No Posts Yet" / >
+                            )
+                        } <
+                        /div> <
+                        />
                     )
                 } <
-                /div>
-            )
-        } <
-        /div>
-);
-};
+                /div> <
+                /section>
+            );
+        };
 
-export default Home;
+        export default Home;
