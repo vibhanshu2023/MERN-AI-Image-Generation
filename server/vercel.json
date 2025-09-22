@@ -2,9 +2,25 @@
     "version": 2,
     "name": "AI Image",
     "builds": [
-        { "src": "app.js", "use": "@vercel/node" }
+      {
+        "src": "server/app.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "client/package.json",
+        "use": "@vercel/static-build",
+        "config": { "distDir": "client/dist" }
+      }
     ],
     "routes": [
-        { "src": "/(.*)", "dest": "/app.js" }
+      {
+        "src": "/api/(.*)",
+        "dest": "/server/app.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/client/dist/$1"
+      }
     ]
-}
+  }
+  

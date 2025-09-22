@@ -1,12 +1,18 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import connectDB from './mongodb/connect.js';
 import postRoutes from './routes/postRoutes.js';
 import dalleRoutes from './routes/dalleRoutes.js';
 
 dotenv.config();
+
+// Fix __dirname for ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -21,13 +27,21 @@ app.get('/', async(req, res) => {
     });
 });
 
-const startServer = async() => {
-    try {
-        connectDB(process.env.MONGODB_URL);
-        app.listen(8080, () => console.log('Server started on port 8080'));
-    } catch (error) {
-        console.log(error);
-    }
+// Serve React build
+app.use(express.static(path.join(__dirname, '../client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
+
+// Start server after DB connection
+const startServer = async () => {
+  try {
+    await connectDB(process.env.MONGODB_URL);
+    const PORT = process.env.PORT || 8080;
+    app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 startServer();
