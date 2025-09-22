@@ -23,7 +23,7 @@ const CreatePost = () => {
 
     try {
       setGeneratingImg(true);
-      const response = await axios.post('https://mern-ai-image-generation-navy.vercel.app/api/v1/dalle', {
+      const response = await axios.post('https://mern-ai-image-generation-ex9w.vercel.app/api/v1/dalle', {
         prompt: form.prompt,
       });
 
@@ -48,7 +48,7 @@ const CreatePost = () => {
 
     try {
       setLoading(true);
-      await axios.post('https://mern-ai-image-generation-navy.vercel.app/api/v1/post', form, {
+      await axios.post('https://mern-ai-image-generation-ex9w.vercel.app/api/v1/post', form, {
         headers: { 'Content-Type': 'application/json' },
       });
       navigate('/');
