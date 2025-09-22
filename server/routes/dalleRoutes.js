@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import FormData from 'form-data';
 import fetch from 'node-fetch';
 
 dotenv.config();
@@ -7,42 +8,45 @@ dotenv.config();
 const router = express.Router();
 
 router.route('/')
-    .get((req, res) => {
-        res.send('Hello World!');
-    })
-    .post(async(req, res) => {
-        try {
-            const { prompt } = req.body;
-            console.log('Received prompt:', prompt);
+  .post(async (req, res) => {
+    try {
+      const { prompt } = req.body;
 
-            const response = await fetch(`https://api.limewire.com/api/image/generation`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Api-Version': 'v1',
-                    Accept: 'application/json',
-                    Authorization: `Bearer ${process.env.LIMEWIRE_API_KEY}`
-                },
-                body: JSON.stringify({
-                    prompt,
-                    aspect_ratio: '1:1'
-                })
-            });
+      if (!prompt) {
+        return res.status(400).json({ message: 'Prompt is required' });
+      }
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Error: ${response.status} ${response.statusText} - ${errorText}`);
-            }
+      console.log('Received prompt:', prompt);
 
-            const data = await response.json();
-            console.log('Received data:', data);
+      // Create FormData
+      const form = new FormData();
+      form.append('prompt', prompt);
 
-            //const image = data.url; / / Ensure this is the correct path to the image URL
-            res.status(200).json({ photo: data });
-        } catch (error) {
-            console.error('Error creating image:', error);
-            res.status(500).json({ message: 'Internal Server Error', error: error.message });
-        }
-    });
+      const response = await fetch('https://clipdrop-api.co/text-to-image/v1', {
+        method: 'POST',
+        headers: {
+          'x-api-key': process.env.CLIPDROP_API_KEY,
+          ...form.getHeaders(),
+        },
+        body: form,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      // Convert response to base64
+      const buffer = await response.arrayBuffer();
+      const base64Image = Buffer.from(buffer).toString('base64');
+
+      // Send back as data URL
+      res.status(200).json({ photo: `data:image/png;base64,${base64Image}` });
+
+    } catch (error) {
+      console.error('Error creating image:', error);
+      res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+  });
 
 export default router;
