@@ -23,7 +23,7 @@ const CreatePost = () => {
 
     try {
       setGeneratingImg(true);
-      const response = await axios.post('http://localhost:8080/api/v1/dalle', {
+      const response = await axios.post('https://prompt-to-image-ai.vercel.app/', {
         prompt: form.prompt,
       });
 
@@ -48,7 +48,7 @@ const CreatePost = () => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:8080/api/v1/post', form, {
+      await axios.post('https://prompt-to-image-ai.vercel.app/post', form, {
         headers: { 'Content-Type': 'application/json' },
       });
       navigate('/');

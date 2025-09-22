@@ -25,7 +25,7 @@ const RenderCards = ({ data, title }) => {
             const fetchPosts = async() => {
                 setLoading(true);
                 try {
-                    const response = await axios.get('http://localhost:8080/api/v1/post');
+                    const response = await axios.get('https://prompt-to-image-ai.vercel.app/post');
                     setAllPosts(response.data.data.reverse());
                 } catch (error) {
                     console.error('Error fetching posts:', error);
