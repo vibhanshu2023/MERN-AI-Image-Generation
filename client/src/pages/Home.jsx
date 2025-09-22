@@ -23,7 +23,7 @@ const Home = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        'https://mern-ai-image-generation-ov2c.vercel.app/api/v1/post'
+        'https://ai-image-generator-done3.vercel.app/api/v1/post'
       );
       setAllPosts(response.data.data.reverse());
     } catch (error) {
